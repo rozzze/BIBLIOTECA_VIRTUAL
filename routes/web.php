@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
+use App\Livewire\Admin\ImportUsers;
 
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Catalog\Index as CatalogIndex;
@@ -66,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
             ),
         )
         ->name('two-factor.show');
+});
+
+Route::middleware(['auth', 'role:Administrador'])->group(function () {
+    Route::get('/admin/import-users', ImportUsers::class)->name('admin.import-users');
 });
 
 /*

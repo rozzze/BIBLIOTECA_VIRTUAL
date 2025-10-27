@@ -65,4 +65,10 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    public function studentProfile()
+    {
+        return $this->hasOne(\App\Models\StudentProfile::class);
+    }
+
 }
