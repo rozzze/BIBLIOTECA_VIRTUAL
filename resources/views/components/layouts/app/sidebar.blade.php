@@ -4,18 +4,12 @@
     @include('partials.head')
 </head>
 <body class="min-h-screen bg-white dark:bg-zinc-800">
-    <!-- Sidebar -->
     <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-        <!-- Logo redirige según rol -->
         @auth
             @if (auth()->user()->hasRole('Administrador') || auth()->user()->hasRole('Bibliotecario'))
                 <a href="{{ route('admin.dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                    <x-app-logo />
-                </a>
-            @elseif (auth()->user()->hasRole('Alumno'))
-                <a href="{{ route('catalog') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
                     <x-app-logo />
                 </a>
             @endif
@@ -25,22 +19,9 @@
             </a>
         @endauth
 
-        <!-- Navegación principal -->
         <flux:navlist variant="outline">
             <flux:navlist.group :heading="__('Biblioteca Virtual')" class="grid">
                 @auth
-                    <!-- Vista Alumno -->
-                    @if (auth()->user()->hasRole('Alumno'))
-                        <flux:navlist.item 
-                            icon="book-open"
-                            :href="route('catalog')"
-                            :current="request()->routeIs('catalog')"
-                            wire:navigate>
-                            {{ __('Catálogo de Libros') }}
-                        </flux:navlist.item>
-                    @endif
-
-                    <!-- Vista Admin / Bibliotecario -->
                     @if (auth()->user()->hasRole('Administrador') || auth()->user()->hasRole('Bibliotecario'))
                         <flux:navlist.item 
                             icon="layout-grid"
@@ -51,7 +32,6 @@
                         </flux:navlist.item>
                     @endif
 
-                    <!-- Solo Administrador -->
                     @if (auth()->user()->hasRole('Administrador'))
                         <flux:navlist.item
                             icon="arrow-up-tray"
@@ -67,7 +47,6 @@
 
         <flux:spacer />
 
-        <!-- Menú de usuario -->
         @auth
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">
                 <flux:profile
@@ -77,7 +56,6 @@
                 />
 
                 <flux:menu class="w-[220px]">
-                    <!-- Datos de usuario -->
                     <div class="p-0 text-sm font-normal">
                         <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
                             <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
@@ -94,7 +72,6 @@
 
                     <flux:menu.separator />
 
-                    <!-- Opciones de configuración -->
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('profile.edit')" icon="user" wire:navigate>
                             {{ __('Perfil') }}
@@ -114,7 +91,6 @@
 
                     <flux:menu.separator />
 
-                    <!-- Cerrar sesión -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
@@ -126,7 +102,6 @@
         @endauth
     </flux:sidebar>
 
-    <!-- Header móvil -->
     <flux:header class="lg:hidden">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
         <flux:spacer />
@@ -138,7 +113,6 @@
                     icon-trailing="chevron-down" 
                 />
                 <flux:menu>
-                    <!-- Versión móvil: solo cerrar sesión -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle">
