@@ -4,42 +4,102 @@
     @include('partials.head')
 </head>
 <body class="min-h-screen bg-white dark:bg-zinc-800">
-    <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
-
-        @auth
-            <a href="{{ route('catalog') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+    {{-- 
+        Aquí está el SIDEBAR fusionado.
+        Usa la estructura 'collapsible' del ejemplo, pero con tus colores.
+    --}}
+    <flux:sidebar sticky collapsible class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
+        
+        {{-- 1. HEADER DEL SIDEBAR (del ejemplo) --}}
+        <flux:sidebar.header>
+            
+            {{-- Aquí va TU LOGO en lugar de <flux:sidebar.brand> --}}
+            <a href="{{ auth()->check() ? route('catalog') : route('landing') }}" wire:navigate>
                 <x-app-logo />
             </a>
-        @else
-            <a href="{{ route('landing') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <x-app-logo />
-            </a>
-        @endauth
 
-        <flux:navlist variant="outline">
-            <flux:navlist.group :heading="__('Biblioteca Virtual')" class="grid">
+            {{-- El botón para colapsar (del ejemplo) --}}
+            <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
+        
+        </flux:sidebar.header>
+
+        {{-- 2. NAVEGACIÓN (Tus items en la estructura del ejemplo) --}}
+        <flux:sidebar.nav>
+            <flux:sidebar.group 
+                expandable 
+                icon="book-open" 
+                heading="{{__('Biblioteca Virtual')}}" 
+                class="grid"
+            >
                 @auth
-                    <flux:navlist.item 
-                        icon="book-open"
+                    <flux:sidebar.item 
                         :href="route('catalog')"
                         :current="request()->routeIs('catalog')"
                         wire:navigate>
                         {{ __('Catálogo de Libros') }}
-                    </flux:navlist.item>
+                    </flux:sidebar.item>
+
+                    {{-- ¡Añadí los enlaces basados en tu idea de app! --}}
+                    <flux:sidebar.item 
+                        icon="bell" 
+                        href="#" {{-- :href="route('reminders')" --}}
+                        {{-- :current="request()->routeIs('reminders')" --}}
+                    >
+                        {{ __('Mis Recordatorios') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item 
+                        icon="beaker" 
+                        href="#" {{-- :href="route('treatments')" --}}
+                        {{-- :current="request()->routeIs('treatments')" --}}
+                    >
+                        {{ __('Mis Tratamientos') }}
+                    </flux:sidebar.item>
+
+                @else
+                    {{-- Para usuarios no autenticados --}}
+                    <flux:sidebar.item 
+                        :href="route('landing')"
+                        :current="request()->routeIs('landing')"
+                        wire:navigate>
+                        {{ __('Inicio') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item 
+                        icon="arrow-left-on-rectangle"
+                        :href="route('login')"
+                        :current="request()->routeIs('login')"
+                        wire:navigate>
+                        {{ __('Iniciar Sesión') }}
+                    </flux:sidebar.item>
                 @endauth
-            </flux:navlist.group>
-        </flux:navlist>
+            </flux:sidebar.group>
+        </flux:sidebar.nav>
 
-        <flux:spacer />
+        <flux:sidebar.spacer />
 
+        {{-- 3. NAVEGACIÓN SECUNDARIA (del ejemplo, adaptada) --}}
+        <flux:sidebar.nav>
+            @auth
+                <flux:sidebar.item 
+                    icon="cog-6-tooth" 
+                    href="#" {{-- :href="route('profile.show')" --}}
+                    {{-- :current="request()->routeIs('profile.show')" --}}
+                >
+                    {{ __('Configuración') }}
+                </flux:sidebar.item>
+            @endauth
+            <flux:sidebar.item icon="information-circle" href="#">{{ __('Ayuda') }}</flux:sidebar.item>
+        </flux:sidebar.nav>
+
+        {{-- 4. PERFIL (al final del sidebar, para DESKTOP) --}}
         @auth
-            <flux:dropdown class="hidden lg:block" position="bottom" align="start">
-                <flux:profile
+            <flux:dropdown position="top" align="start" class="max-lg:hidden">
+                {{-- Usamos 'sidebar.profile' del ejemplo para el trigger --}}
+                <flux:sidebar.profile
                     :name="auth()->user()->name"
                     :initials="auth()->user()->initials()"
-                    icon:trailing="chevrons-up-down"
                 />
+
+                {{-- Tu menú de logout --}}
                 <flux:menu class="w-[220px]">
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -52,8 +112,36 @@
         @endauth
     </flux:sidebar>
 
+    {{-- 5. HEADER PARA MÓVIL (del ejemplo, adaptado) --}}
     <flux:header class="lg:hidden">
-        </flux:header>
+        {{-- Botón de hamburguesa para abrir el sidebar --}}
+        <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+        <flux:spacer />
+
+        {{-- Tu perfil/login para MÓVIL --}}
+        @auth
+            <flux:dropdown position="top" align="start">
+                <flux:profile
+                    :name="auth()->user()->name"
+                    :initials="auth()->user()->initials()"
+                />
+                <flux:menu class="w-[220px]">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                            {{ __('Cerrar sesión') }}
+                        </flux:menu.item>
+                    </form>
+                </flux:menu>
+            </flux:dropdown>
+        @else
+            {{-- Botones de Login/Register para móvil --}}
+            <flux:button :href="route('login')" variant="outline" wire:navigate>{{ __('Iniciar Sesión') }}</flux:button>
+        @endauth
+
+    </flux:header>
+
 
     {{-- Este es el slot que recibirá el <flux:main> --}}
     {{ $slot }} 
