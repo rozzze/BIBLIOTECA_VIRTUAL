@@ -21,6 +21,10 @@ Route::view('/', 'welcome')->name('landing');
 // 📚 Catálogo (solo visible para usuarios con rol "Alumno")
 Route::middleware(['auth', 'role:Alumno'])->group(function () {
     Route::get('/catalog', CatalogIndex::class)->name('catalog');
+    
+    // AGREGA ESTA LÍNEA:
+    Volt::route('/student/password', 'student.change-password')
+        ->name('student.password.edit');
 });
 
 // ⚙️ Panel administrativo (solo Admin o Bibliotecario)

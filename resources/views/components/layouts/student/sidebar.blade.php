@@ -79,12 +79,14 @@
         {{-- 3. NAVEGACIÓN SECUNDARIA (del ejemplo, adaptada) --}}
         <flux:sidebar.nav>
             @auth
+                {{-- AQUÍ ESTÁ EL ENLACE MODIFICADO --}}
                 <flux:sidebar.item 
-                    icon="cog-6-tooth" 
-                    href="#" {{-- :href="route('profile.show')" --}}
-                    {{-- :current="request()->routeIs('profile.show')" --}}
+                    icon="key" {{-- Cambié el ícono a 'key' (llave) --}}
+                    :href="route('student.password.edit')" {{-- Apunta a tu nueva ruta --}}
+                    :current="request()->routeIs('student.password.edit')" {{-- Revisa la nueva ruta --}}
+                    wire:navigate
                 >
-                    {{ __('Configuración') }}
+                    {{ __('Cambiar Contraseña') }}
                 </flux:sidebar.item>
             @endauth
             <flux:sidebar.item icon="information-circle" href="#">{{ __('Ayuda') }}</flux:sidebar.item>
