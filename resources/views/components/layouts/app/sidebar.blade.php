@@ -40,6 +40,20 @@
                             wire:navigate>
                             {{ __('Importar Usuarios') }}
                         </flux:navlist.item>
+                        <flux:navlist.item 
+                            icon="user-plus"
+                            :href="route('admin.users.index')"
+                            wire:navigate
+                        >
+                            Crear usuario
+                        </flux:navlist.item>
+                        <flux:navlist.item 
+                            icon="bookmark-square"
+                            :href="route('admin.careers.index')"
+                            wire:navigate
+                        >
+                            Crear Carrera
+                        </flux:navlist.item>
                     @endif
                 @endauth
             </flux:navlist.group>

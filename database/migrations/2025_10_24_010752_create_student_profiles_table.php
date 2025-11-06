@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('student_profiles', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('dni', 20)->unique();
-            $table->string('carrera')->nullable();
-            $table->string('semestre')->nullable();
-            $table->string('codigo_institucional')->nullable();
-            $table->string('telefono')->nullable();
-            $table->string('direccion')->nullable();
-            $table->timestamps();
-        });
+    Schema::create('student_profiles', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->string('dni', 20)->unique();
+        $table->foreignId('carrera_id')->nullable()->constrained('careers')->nullOnDelete();
+        $table->enum('turno', ['Diurno', 'Nocturno'])->nullable();
+        $table->enum('semestre', ['1','2','3','4','5','6'])->nullable();
+        $table->string('telefono')->nullable();
+        $table->string('direccion')->nullable();
+        $table->timestamps();
+    });
+
     }
 
     /**

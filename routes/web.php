@@ -9,6 +9,14 @@ use App\Livewire\Admin\ImportUsers;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Catalog\Index as CatalogIndex;
 
+use App\Livewire\Admin\Users\Index as UsersIndex;
+use App\Livewire\Admin\Users\Create as UsersCreate;
+use App\Livewire\Admin\Users\Edit as UsersEdit;
+
+use App\Livewire\Admin\Careers\Index as CareerIndex;
+use App\Livewire\Admin\Careers\Create as CareerCreate;
+use App\Livewire\Admin\Careers\Edit as CareerEdit;
+
 /*
 |--------------------------------------------------------------------------
 | Rutas principales del sistema de Biblioteca Virtual
@@ -75,6 +83,18 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::get('/admin/import-users', ImportUsers::class)->name('admin.import-users');
+});
+
+Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->group(function () {
+    Route::get('/users', UsersIndex::class)->name('admin.users.index');
+    Route::get('/users/create', UsersCreate::class)->name('admin.users.create');
+    Route::get('/users/{user}/edit', UsersEdit::class)->name('admin.users.edit');
+});
+
+Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/careers', CareerIndex::class)->name('careers.index');
+    Route::get('/careers/create', CareerCreate::class)->name('careers.create');
+    Route::get('/careers/{career}/edit', CareerEdit::class)->name('careers.edit');
 });
 
 /*
