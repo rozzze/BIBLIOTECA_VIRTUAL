@@ -3,50 +3,67 @@
 namespace App\Imports;
 
 use App\Models\User;
+use App\Models\Career;
 use App\Models\StudentProfile;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Spatie\Permission\Models\Role;
 
 class UsersImport implements ToModel, WithHeadingRow
 {
-    /**
-     * Espera encabezados: nombre, email, dni, carrera, semestre,
-     * codigo_institucional, telefono, direccion
-     */
     public function model(array $row)
     {
-        // 1) Crear / actualizar usuario por email
+        // Ignorar filas vacías
+        if (empty($row['email']) || empty($row['nombre'])) {
+            return null;
+        }
+
+        // Buscar o crear usuario
         $user = User::updateOrCreate(
             ['email' => $row['email']],
             [
-                'name'     => $row['nombre'],
-                // Si el user es nuevo no tiene password, ponemos una temporal
-                'password' => isset($row['password']) && $row['password']
-                                ? Hash::make($row['password'])
-                                : (User::where('email', $row['email'])->exists()
-                                    ? User::where('email', $row['email'])->value('password')
-                                    : Hash::make('cambiar123')),
+                'name' => $row['nombre'],
+                'password' => isset($row['password'])
+                    ? Hash::make($row['password'])
+                    : Hash::make('123456'),
             ]
         );
 
-        // 2) Asignar rol Alumno si no lo tiene
-        if (! $user->hasRole('Alumno')) {
-            $user->assignRole('Alumno');
+        // Asignar rol si existe
+        if (!empty($row['rol'])) {
+            $role = Role::where('name', $row['rol'])->first();
+            if ($role) {
+                $user->syncRoles([$role->name]);
+            }
         }
 
-        // 3) Crear / actualizar perfil del estudiante
-        $user->studentProfile()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'dni'                  => $row['dni'] ?? '',
-                'carrera'              => $row['carrera'] ?? null,
-                'semestre'             => $row['semestre'] ?? null,
-                'codigo_institucional' => $row['codigo_institucional'] ?? null,
-                'telefono'             => $row['telefono'] ?? null,
-                'direccion'            => $row['direccion'] ?? null,
-            ]
-        );
+        // Si el rol es Alumno, registrar perfil académico
+        if (isset($row['rol']) && strtolower($row['rol']) === 'alumno') {
+            // Buscar la carrera por nombre (ignorando mayúsculas/minúsculas)
+            $career = Career::whereRaw('LOWER(name) = ?', [strtolower($row['carrera'] ?? '')])->first();
+
+            // Si no existe, la crea automáticamente
+            if (!$career && !empty($row['carrera'])) {
+                $career = Career::create([
+                    'name' => $row['carrera'],
+                    'abbreviation' => substr($row['carrera'], 0, 5),
+                    'description' => 'Carrera importada automáticamente.',
+                ]);
+            }
+
+            StudentProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'dni' => $row['dni'] ?? null,
+                    'carrera_id' => $career?->id,
+                    'turno' => $row['turno'] ?? null,
+                    'semestre' => $row['semestre'] ?? null,
+                    'telefono' => $row['telefono'] ?? null,
+                    'direccion' => $row['direccion'] ?? null,
+                ]
+            );
+        }
 
         return $user;
     }

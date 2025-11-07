@@ -16,7 +16,7 @@ class ImportUsers extends Component
     public function import()
     {
         $this->validate([
-            'file' => 'required|mimes:xlsx,csv,txt|max:5120', // hasta 5MB
+            'file' => 'required|mimes:xlsx,csv,txt|max:5120',
         ]);
 
         Excel::import(new UsersImport, $this->file->getRealPath());
