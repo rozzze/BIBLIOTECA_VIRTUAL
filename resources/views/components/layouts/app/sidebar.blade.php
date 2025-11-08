@@ -45,15 +45,32 @@
                             :href="route('admin.users.index')"
                             wire:navigate
                         >
-                            Crear usuario
+                            Usuarios
                         </flux:navlist.item>
                         <flux:navlist.item 
                             icon="bookmark-square"
                             :href="route('admin.careers.index')"
                             wire:navigate
                         >
-                            Crear Carrera
+                            Carreras
                         </flux:navlist.item>
+
+                        <flux:navlist.item 
+                            icon="tag"
+                            :href="route('admin.categories.index')"
+                            wire:navigate
+                        >
+                            Categorias
+                        </flux:navlist.item>
+
+                        <flux:navlist.item 
+                            icon="user-circle"
+                            :href="route('admin.authors.index')"
+                            wire:navigate
+                        >
+                            Autores
+                        </flux:navlist.item>
+
                     @endif
                 @endauth
             </flux:navlist.group>

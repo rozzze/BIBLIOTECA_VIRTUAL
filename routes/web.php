@@ -1,16 +1,15 @@
 <?php
 
-use App\Imports\ImportUsers as ImportsImportUsers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 
-use App\Livewire\Admin\ImportUsers;
-
+// 🧭 Livewire Components
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Catalog\Index as CatalogIndex;
 
+use App\Livewire\Admin\ImportUsers;
 use App\Livewire\Admin\Users\Index as UsersIndex;
 use App\Livewire\Admin\Users\Create as UsersCreate;
 use App\Livewire\Admin\Users\Edit as UsersEdit;
@@ -19,30 +18,38 @@ use App\Livewire\Admin\Careers\Index as CareerIndex;
 use App\Livewire\Admin\Careers\Create as CareerCreate;
 use App\Livewire\Admin\Careers\Edit as CareerEdit;
 
+use App\Livewire\Admin\Categories\Index as CategoryIndex;
+use App\Livewire\Admin\Categories\Create as CategoryCreate;
+use App\Livewire\Admin\Categories\Edit as CategoryEdit;
+
+use App\Livewire\Admin\Authors\Index as AuthorIndex;
+use App\Livewire\Admin\Authors\Create as AuthorCreate;
+use App\Livewire\Admin\Authors\Edit as AuthorEdit;
+
 /*
 |--------------------------------------------------------------------------
-| Rutas principales del sistema de Biblioteca Virtual
+| 🌐 RUTAS PRINCIPALES DEL SISTEMA DE BIBLIOTECA VIRTUAL
 |--------------------------------------------------------------------------
 */
 
-// 🌐 Página principal (landing pública)
+// Página pública principal
 Route::view('/', 'welcome')->name('landing');
 
-// 📚 Catálogo (solo visible para usuarios con rol "Alumno")
+// 📚 CATÁLOGO (solo para rol Alumno)
 Route::middleware(['auth', 'role:Alumno'])->group(function () {
     Route::get('/catalog', CatalogIndex::class)->name('catalog');
-    
-    // AGREGA ESTA LÍNEA:
+
+    // Cambio de contraseña (alumno)
     Volt::route('/student/password', 'student.change-password')
         ->name('student.password.edit');
 });
 
-// ⚙️ Panel administrativo (solo Admin o Bibliotecario)
+// ⚙️ PANEL ADMINISTRATIVO (Admin o Bibliotecario)
 Route::middleware(['auth', 'role:Administrador|Bibliotecario'])->group(function () {
     Route::get('/admin/dashboard', Dashboard::class)->name('admin.dashboard');
 });
 
-// 🔁 Redirección automática post-login (según rol)
+// 🔁 REDIRECCIÓN AUTOMÁTICA POST-LOGIN
 Route::get('/redirect-after-login', function () {
     $user = Auth::user();
 
@@ -57,10 +64,9 @@ Route::get('/redirect-after-login', function () {
     return redirect()->route('landing');
 })->middleware('auth');
 
-
 /*
 |--------------------------------------------------------------------------
-| Rutas del perfil y ajustes (starter kit de Livewire)
+| ⚙️ AJUSTES DE PERFIL (Livewire Starter Kit)
 |--------------------------------------------------------------------------
 */
 
@@ -83,25 +89,41 @@ Route::middleware(['auth'])->group(function () {
         ->name('two-factor.show');
 });
 
+/*
+|--------------------------------------------------------------------------
+| 👤 ADMINISTRADOR — Importación y Gestión de Usuarios
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::get('/admin/import-users', ImportUsers::class)->name('admin.import-users');
 });
 
 Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->group(function () {
+    // Usuarios
     Route::get('/users', UsersIndex::class)->name('admin.users.index');
     Route::get('/users/create', UsersCreate::class)->name('admin.users.create');
     Route::get('/users/{user}/edit', UsersEdit::class)->name('admin.users.edit');
-});
 
-Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/careers', CareerIndex::class)->name('careers.index');
-    Route::get('/careers/create', CareerCreate::class)->name('careers.create');
-    Route::get('/careers/{career}/edit', CareerEdit::class)->name('careers.edit');
+    // Carreras
+    Route::get('/careers', CareerIndex::class)->name('admin.careers.index');
+    Route::get('/careers/create', CareerCreate::class)->name('admin.careers.create');
+    Route::get('/careers/{career}/edit', CareerEdit::class)->name('admin.careers.edit');
+
+    // Categorías
+    Route::get('/categories', CategoryIndex::class)->name('admin.categories.index');
+    Route::get('/categories/create', CategoryCreate::class)->name('admin.categories.create');
+    Route::get('/categories/{category}/edit', CategoryEdit::class)->name('admin.categories.edit');
+
+    // Autores
+    Route::get('/authors', AuthorIndex::class)->name('admin.authors.index');
+    Route::get('/authors/create', AuthorCreate::class)->name('admin.authors.create');
+    Route::get('/authors/{author}/edit', AuthorEdit::class)->name('admin.authors.edit');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de autenticación (login, registro, etc.)
+| 🔐 AUTENTICACIÓN (Login, Registro, etc.)
 |--------------------------------------------------------------------------
 */
 require __DIR__.'/auth.php';
