@@ -7,27 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class Author extends Model
+class Publisher extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
         'slug',
-        'nationality',
-        'biography',
-        'photo_path',
+        'country',
+        'website',
+        'description',
+        'logo_path',
     ];
 
     protected static function booted(): void
     {
-        static::creating(function (Author $author) {
-            $author->slug = static::generateUniqueSlug($author->name);
+        static::creating(function (Publisher $publisher) {
+            $publisher->slug = static::generateUniqueSlug($publisher->name);
         });
 
-        static::updating(function (Author $author) {
-            if ($author->isDirty('name')) {
-                $author->slug = static::generateUniqueSlug($author->name, $author->id);
+        static::updating(function (Publisher $publisher) {
+            if ($publisher->isDirty('name')) {
+                $publisher->slug = static::generateUniqueSlug($publisher->name, $publisher->id);
             }
         });
     }
@@ -48,17 +49,13 @@ class Author extends Model
         return $slug;
     }
 
-    // 🖼️ URL accesible para la imagen
-    public function getPhotoUrlAttribute(): string
+    // 🖼️ Imagen o logo de editorial
+    public function getLogoUrlAttribute(): string
     {
-        if ($this->photo_path) {
-            $disk = config('filesystems.default');
-            if (method_exists(Storage::disk($disk), 'url')) {
-                return Storage::disk($disk)->url($this->photo_path);
-            }
-            return asset('storage/'.$this->photo_path);
+        if ($this->logo_path) {
+            return Storage::disk(config('filesystems.default'))->url($this->logo_path);
         }
 
-        return asset('images/default-author.png');
+        return asset('images/default-publisher.png');
     }
 }

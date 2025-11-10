@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('authors', function (Blueprint $table) {
             $table->id();
             $table->string('name', 120);
+            $table->string('slug', 160)->unique(); // nuevo campo slug
             $table->string('nationality', 80)->nullable();
             $table->text('biography')->nullable();
             $table->string('photo_path')->nullable(); // almacenamiento local o S3

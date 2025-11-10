@@ -71,6 +71,14 @@
                             Autores
                         </flux:navlist.item>
 
+                        <flux:navlist.item 
+                            icon="pencil-square"
+                            :href="route('admin.publishers.index')"
+                            wire:navigate
+                        >
+                            Editoriales
+                        </flux:navlist.item>
+
                     @endif
                 @endauth
             </flux:navlist.group>
