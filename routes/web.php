@@ -30,6 +30,10 @@ use App\Livewire\Admin\Publishers\Index as PublisherIndex;
 use App\Livewire\Admin\Publishers\Create as PublisherCreate;
 use App\Livewire\Admin\Publishers\Edit as PublisherEdit;
 
+use App\Livewire\Admin\Books\Index as BookIndex;
+use App\Livewire\Admin\Books\Create as BookCreate;
+use App\Livewire\Admin\Books\Edit as BookEdit;
+
 /*
 |--------------------------------------------------------------------------
 | 🌐 RUTAS PRINCIPALES DEL SISTEMA DE BIBLIOTECA VIRTUAL
@@ -124,10 +128,15 @@ Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->group(functi
     Route::get('/authors/create', AuthorCreate::class)->name('admin.authors.create');
     Route::get('/authors/{author}/edit', AuthorEdit::class)->name('admin.authors.edit');
 
+    // Editoriales
     Route::get('/publishers', PublisherIndex::class)->name('admin.publishers.index');
     Route::get('/publishers/create', PublisherCreate::class)->name('admin.publishers.create');
     Route::get('/publishers/{publisher}/edit', PublisherEdit::class)->name('admin.publishers.edit');
 
+    // Libros
+    Route::get('/books', BookIndex::class)->name('admin.books.index');
+    Route::get('/books/create', BookCreate::class)->name('admin.books.create');
+    Route::get('/books/{book}/edit', BookEdit::class)->name('admin.books.edit');
 });
 
 /*

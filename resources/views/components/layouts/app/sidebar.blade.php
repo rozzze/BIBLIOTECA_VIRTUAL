@@ -79,6 +79,14 @@
                             Editoriales
                         </flux:navlist.item>
 
+                        <flux:navlist.item 
+                            icon="book-open"
+                            :href="route('admin.books.index')"
+                            wire:navigate
+                        >
+                            LIBROS
+                        </flux:navlist.item>
+
                     @endif
                 @endauth
             </flux:navlist.group>

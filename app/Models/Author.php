@@ -19,6 +19,11 @@ class Author extends Model
         'photo_path',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | ⚙️ Slug automático único
+    |--------------------------------------------------------------------------
+    */
     protected static function booted(): void
     {
         static::creating(function (Author $author) {
@@ -48,7 +53,21 @@ class Author extends Model
         return $slug;
     }
 
-    // 🖼️ URL accesible para la imagen
+    /*
+    |--------------------------------------------------------------------------
+    | 📚 Relación con libros
+    |--------------------------------------------------------------------------
+    */
+    public function books()
+    {
+        return $this->hasMany(Book::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 🖼️ Imagen de autor (local o S3)
+    |--------------------------------------------------------------------------
+    */
     public function getPhotoUrlAttribute(): string
     {
         if ($this->photo_path) {

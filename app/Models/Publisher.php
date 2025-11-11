@@ -20,6 +20,11 @@ class Publisher extends Model
         'logo_path',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | ⚙️ Slug automático único
+    |--------------------------------------------------------------------------
+    */
     protected static function booted(): void
     {
         static::creating(function (Publisher $publisher) {
@@ -49,7 +54,21 @@ class Publisher extends Model
         return $slug;
     }
 
-    // 🖼️ Imagen o logo de editorial
+    /*
+    |--------------------------------------------------------------------------
+    | 📚 Relación con libros
+    |--------------------------------------------------------------------------
+    */
+    public function books()
+    {
+        return $this->hasMany(Book::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 🖼️ Imagen o logo de la editorial
+    |--------------------------------------------------------------------------
+    */
     public function getLogoUrlAttribute(): string
     {
         if ($this->logo_path) {
