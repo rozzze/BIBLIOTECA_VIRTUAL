@@ -11,6 +11,9 @@ class Book extends Model
 {
     use HasFactory;
 
+    /**
+     * Los atributos que se pueden asignar masivamente.
+     */
     protected $fillable = [
         'title',
         'slug',
@@ -23,7 +26,7 @@ class Book extends Model
         'stock',
         'cover_path',
         'summary',
-        'status',
+        'status', // Tu migración le da un 'default', así que no es 100% necesario al crear
     ];
 
     /*
@@ -49,52 +52,67 @@ class Book extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | ⚙️ Slug Automático
+    | ⚙️ Slug Automático (Versión Robusta)
     |--------------------------------------------------------------------------
     */
     protected static function booted()
     {
-        static::creating(function ($book) {
+        static::creating(function (Book $book) {
             $book->slug = static::generateUniqueSlug($book->title);
         });
 
-        static::updating(function ($book) {
+        static::updating(function (Book $book) {
             if ($book->isDirty('title')) {
-                $book->slug = static::generateUniqueSlug($book->title);
+                // Pasa el ID actual para ignorarlo en la búsqueda de duplicados
+                $book->slug = static::generateUniqueSlug($book->title, $book->id);
             }
         });
     }
 
-    protected static function generateUniqueSlug($title)
+    /**
+     * Genera un slug único para el libro.
+     */
+    protected static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
     {
-        $slug = Str::slug($title);
-        $count = static::where('slug', 'like', "{$slug}%")->count();
+        $baseSlug = Str::slug($title);
+        $slug = $baseSlug;
+        $count = 1;
 
-        return $count ? "{$slug}-" . ($count + 1) : $slug;
+        // Bucle para encontrar un slug que no exista
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId)) // Ignora el ID actual al actualizar
+            ->exists()) {
+            $slug = "{$baseSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | 🖼️ Imagen de portada (local o S3)
+    | 🖼️ Imagen de portada (local o S3) - Versión Robusta
     |--------------------------------------------------------------------------
     */
     public function getCoverUrlAttribute(): string
     {
         if ($this->cover_path) {
             $disk = config('filesystems.default');
+            // Comprueba si el disco (S3, public) tiene un método 'url'
             if (method_exists(Storage::disk($disk), 'url')) {
                 return Storage::disk($disk)->url($this->cover_path);
             }
+            // Fallback para el disco 'local' (que no tiene 'url')
             return asset('storage/' . $this->cover_path);
         }
 
         // Imagen genérica si no hay portada
-        return asset('images/default-book.png');
+        return asset('images/dafault-book.jpg');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | 🏷️ Accesorios extra (por si luego lo usamos en el catálogo)
+    | 🏷️ Accesorios extra
     |--------------------------------------------------------------------------
     */
     public function getDisplayTitleAttribute(): string

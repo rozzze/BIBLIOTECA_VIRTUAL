@@ -78,6 +78,6 @@ class Author extends Model
             return asset('storage/'.$this->photo_path);
         }
 
-        return asset('images/default-author.png');
+        return asset('images/default-author.jpg');
     }
 }

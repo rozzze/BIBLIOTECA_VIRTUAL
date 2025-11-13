@@ -33,13 +33,8 @@
                     @endif
 
                     @if (auth()->user()->hasRole('Administrador'))
-                        <flux:navlist.item
-                            icon="arrow-up-tray"
-                            :href="route('admin.import-users')"
-                            :current="request()->routeIs('admin.import-users')"
-                            wire:navigate>
-                            {{ __('Importar Usuarios') }}
-                        </flux:navlist.item>
+                        {{-- 'Importar Usuarios' se movió a Mantenimiento --}}
+                        
                         <flux:navlist.item 
                             icon="user-plus"
                             :href="route('admin.users.index')"
@@ -90,11 +85,36 @@
                     @endif
                 @endauth
             </flux:navlist.group>
+
+            {{-- 👇👇 NUEVO GRUPO DE MANTENIMIENTO 👇👇 --}}
+            @auth
+                @if (auth()->user()->hasRole('Administrador'))
+                    <flux:navlist.group :heading="__('Mantenimiento')" class="grid">
+                        <flux:navlist.item
+                            icon="arrow-up-tray"
+                            :href="route('admin.import-users')"
+                            :current="request()->routeIs('admin.import-users')"
+                            wire:navigate>
+                            {{ __('Importar Usuarios') }}
+                        </flux:navlist.item>
+
+                        <flux:navlist.item
+                            icon="trash"
+                            :href="route('admin.maintenance.index')"
+                            :current="request()->routeIs('admin.maintenance.index')"
+                            wire:navigate>
+                            {{ __('Limpieza de Temporales') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
+                @endif
+            @endauth
+            {{-- 👆👆 FIN DEL NUEVO GRUPO 👆👆 --}}
         </flux:navlist>
 
         <flux:spacer />
 
         @auth
+            {{-- ... El resto de tu código de perfil ... --}}
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">
                 <flux:profile
                     :name="auth()->user()->name"

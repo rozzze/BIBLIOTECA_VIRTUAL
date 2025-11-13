@@ -6,83 +6,83 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Book;
 use App\Models\Author;
-use App\Models\Publisher;
 use App\Models\Category;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Publisher;
 
 class Index extends Component
 {
+    // 1. USA PAGINACIÓN
     use WithPagination;
 
-    public string $search = '';
-    public string $filterCategory = '';
-    public string $filterAuthor = '';
-    public string $filterPublisher = '';
+    // 2. PROPIEDADES DE FILTRADO (deducidas de tu vista)
+    public $search = '';
+    public $filterCategory = '';
+    public $filterAuthor = '';
+    public $filterPublisher = '';
 
-    protected $queryString = [
-        'search' => ['except' => ''],
-        'filterCategory' => ['except' => ''],
-        'filterAuthor' => ['except' => ''],
-        'filterPublisher' => ['except' => ''],
-    ];
-
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingFilterCategory() { $this->resetPage(); }
-    public function updatingFilterAuthor() { $this->resetPage(); }
-    public function updatingFilterPublisher() { $this->resetPage(); }
-
+    // 3. MÉTODO PARA LIMPIAR (deducido de tu vista)
     public function clearFilters()
     {
-        $this->reset('search','filterCategory','filterAuthor','filterPublisher');
-        $this->resetPage();
+        $this->search = '';
+        $this->filterCategory = '';
+        $this->filterAuthor = '';
+        $this->filterPublisher = '';
+        $this->resetPage(); // Reinicia la paginación
     }
-
-    public function deleteBook(int $id)
+    
+    // 4. MÉTODO PARA BORRAR (deducido de tu vista)
+    public function deleteBook(Book $book)
     {
-        $book = Book::findOrFail($id);
-
-        // Si en el futuro hay préstamos, aquí harías la validación para no borrar con préstamos activos.
-
-        // borrar portada si existe
-        $disk = config('filesystems.default');
-        if ($book->cover_path && Storage::disk($disk)->exists($book->cover_path)) {
-            Storage::disk($disk)->delete($book->cover_path);
-        }
-
+        // Aquí puedes añadir SoftDeletes (Mejora 2) en el futuro.
+        // Por ahora, lo borramos.
+        // Nota: Idealmente, maneja la imagen también.
         $book->delete();
-
-        session()->flash('success', '✅ Libro eliminado correctamente.');
-        // Mantiene la página actual pero si quedó vacía, vuelve a la anterior
-        if ($this->page > $this->paginator->lastPage()) {
-            $this->previousPage();
-        }
+        session()->flash('success', 'Libro eliminado correctamente.');
     }
-
+    
+    // 5. El MÉTODO RENDER (¡Aquí ocurre la magia!)
     public function render()
     {
+        // Inicia la consulta por los libros
         $query = Book::query()
-            ->with(['author','publisher','category'])
+        
+            // 👇 ¡¡¡AQUÍ ESTÁ LA MEJORA 1!!! 👇
+            // Le decimos a Laravel que cargue las relaciones
+            // EN UNA SOLA CONSULTA, antes de empezar.
+            ->with(['author', 'publisher', 'category'])
+            
+            // FILTROS (basados en tu vista)
             ->when($this->search, function ($q) {
-                $term = "%{$this->search}%";
-                $q->where(function ($w) use ($term) {
-                    $w->where('title','like',$term)
-                      ->orWhere('language','like',$term)
-                      ->orWhere('summary','like',$term)
-                      ->orWhereHas('author', fn($a)=>$a->where('name','like',$term))
-                      ->orWhereHas('publisher', fn($p)=>$p->where('name','like',$term))
-                      ->orWhereHas('category', fn($c)=>$c->where('name','like',$term));
-                });
+                $q->where('title', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('author', fn($sq) => $sq->where('name', 'like', '%' . $this->search . '%'))
+                  ->orWhereHas('publisher', fn($sq) => $sq->where('name', 'like', '%' . $this->search . '%'));
             })
-            ->when($this->filterCategory, fn($q)=>$q->where('category_id',$this->filterCategory))
-            ->when($this->filterAuthor, fn($q)=>$q->where('author_id',$this->filterAuthor))
-            ->when($this->filterPublisher, fn($q)=>$q->where('publisher_id',$this->filterPublisher))
-            ->latest('id');
+            ->when($this->filterCategory, fn($q) => $q->where('category_id', $this->filterCategory))
+            ->when($this->filterAuthor, fn($q) => $q->where('author_id', $this->filterAuthor))
+            ->when($this->filterPublisher, fn($q) => $q->where('publisher_id', $this->filterPublisher));
 
+        // Paginación
+        $books = $query->latest()->paginate(10); // 10 por página (puedes cambiarlo)
+
+        // Carga los datos para tus menús <select>
+        $authors = Author::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
+        $publishers = Publisher::orderBy('name')->get();
+
+        // Pasa todo a la vista
         return view('livewire.admin.books.index', [
-            'books' => $query->paginate(10),
-            'categories' => Category::orderBy('name')->get(),
-            'authors' => Author::orderBy('name')->get(),
-            'publishers' => Publisher::orderBy('name')->get(),
+            'books' => $books,
+            'authors' => $authors,
+            'categories' => $categories,
+            'publishers' => $publishers,
         ]);
+    }
+    
+    // Escucha cuando los filtros cambian para reiniciar la paginación
+    public function updating($key)
+    {
+        if(in_array($key, ['search', 'filterCategory', 'filterAuthor', 'filterPublisher'])) {
+            $this->resetPage();
+        }
     }
 }

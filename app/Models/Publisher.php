@@ -69,12 +69,17 @@ class Publisher extends Model
     | 🖼️ Imagen o logo de la editorial
     |--------------------------------------------------------------------------
     */
+// En Publisher.php
     public function getLogoUrlAttribute(): string
     {
         if ($this->logo_path) {
-            return Storage::disk(config('filesystems.default'))->url($this->logo_path);
+            $disk = config('filesystems.default');
+            if (method_exists(Storage::disk($disk), 'url')) {
+                return Storage::disk($disk)->url($this->logo_path);
+            }
+            return asset('storage/' . $this->logo_path);
         }
 
-        return asset('images/default-publisher.png');
+        return asset('images/default-publisher.jpg');
     }
 }

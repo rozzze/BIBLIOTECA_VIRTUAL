@@ -33,6 +33,11 @@ use App\Livewire\Admin\Publishers\Edit as PublisherEdit;
 use App\Livewire\Admin\Books\Index as BookIndex;
 use App\Livewire\Admin\Books\Create as BookCreate;
 use App\Livewire\Admin\Books\Edit as BookEdit;
+use App\Livewire\Admin\Books\Show as BookShow;
+
+// 👇 1. AQUÍ ESTÁ EL 'USE' QUE FALTABA
+use App\Livewire\Admin\Maintenance\Cleanup as MaintenanceCleanup;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -99,7 +104,7 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| 👤 ADMINISTRADOR — Importación y Gestión de Usuarios
+| 👤 ADMINISTRADOR — ImportACIÓN Y GestiÓn DE USUARIOS
 |--------------------------------------------------------------------------
 */
 
@@ -137,6 +142,10 @@ Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->group(functi
     Route::get('/books', BookIndex::class)->name('admin.books.index');
     Route::get('/books/create', BookCreate::class)->name('admin.books.create');
     Route::get('/books/{book}/edit', BookEdit::class)->name('admin.books.edit');
+    Route::get('/books/{book}/show', BookShow::class)->name('admin.books.show');
+
+    // 👇 2. AQUÍ ESTÁ LA RUTA QUE FALTABA
+    Route::get('/maintenance/cleanup', MaintenanceCleanup::class)->name('admin.maintenance.index');
 });
 
 /*
