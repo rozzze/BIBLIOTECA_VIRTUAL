@@ -5,8 +5,7 @@
 </head>
 <body class="min-h-screen bg-white dark:bg-zinc-800">
     <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
-
+        {{-- ... (código de logo existente) ... --}}
         @auth
             @if (auth()->user()->hasRole('Administrador') || auth()->user()->hasRole('Bibliotecario'))
                 <a href="{{ route('admin.dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
@@ -22,6 +21,7 @@
         <flux:navlist variant="outline">
             <flux:navlist.group :heading="__('Biblioteca Virtual')" class="grid">
                 @auth
+                    {{-- ... (código de enlaces de Biblioteca Virtual existente) ... --}}
                     @if (auth()->user()->hasRole('Administrador') || auth()->user()->hasRole('Bibliotecario'))
                         <flux:navlist.item 
                             icon="layout-grid"
@@ -86,7 +86,7 @@
                 @endauth
             </flux:navlist.group>
 
-            {{-- 👇👇 NUEVO GRUPO DE MANTENIMIENTO 👇👇 --}}
+            {{-- 👇👇 GRUPO DE MANTENIMIENTO ACTUALIZADO 👇👇 --}}
             @auth
                 @if (auth()->user()->hasRole('Administrador'))
                     <flux:navlist.group :heading="__('Mantenimiento')" class="grid">
@@ -98,6 +98,16 @@
                             {{ __('Importar Usuarios') }}
                         </flux:navlist.item>
 
+                        {{-- ===== BOTÓN AÑADIDO ===== --}}
+                        <flux:navlist.item
+                            icon="table-cells" {{-- Icono de "Excel" o tabla --}}
+                            :href="route('admin.books.import')"
+                            :current="request()->routeIs('admin.books.import')"
+                            wire:navigate>
+                            {{ __('Importar Libros') }}
+                        </flux:navlist.item>
+                        {{-- ===== FIN DE BOTÓN AÑADIDO ===== --}}
+
                         <flux:navlist.item
                             icon="trash"
                             :href="route('admin.maintenance.index')"
@@ -108,13 +118,13 @@
                     </flux:navlist.group>
                 @endif
             @endauth
-            {{-- 👆👆 FIN DEL NUEVO GRUPO 👆👆 --}}
+            {{-- 👆👆 FIN DEL GRUPO 👆👆 --}}
         </flux:navlist>
 
         <flux:spacer />
 
         @auth
-            {{-- ... El resto de tu código de perfil ... --}}
+            {{-- ... (El resto de tu código de perfil) ... --}}
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">
                 <flux:profile
                     :name="auth()->user()->name"
@@ -170,6 +180,7 @@
     </flux:sidebar>
 
     <flux:header class="lg:hidden">
+        {{-- ... (código de header existente) ... --}}
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
         <flux:spacer />
 

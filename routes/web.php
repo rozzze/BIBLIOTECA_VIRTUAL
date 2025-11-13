@@ -35,8 +35,9 @@ use App\Livewire\Admin\Books\Create as BookCreate;
 use App\Livewire\Admin\Books\Edit as BookEdit;
 use App\Livewire\Admin\Books\Show as BookShow;
 
-// 👇 1. AQUÍ ESTÁ EL 'USE' QUE FALTABA
 use App\Livewire\Admin\Maintenance\Cleanup as MaintenanceCleanup;
+
+use App\Livewire\Admin\ImportBooks;
 
 
 /*
@@ -110,6 +111,8 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::get('/admin/import-users', ImportUsers::class)->name('admin.import-users');
+    Route::get('/admin/import-books', ImportBooks::class)->name('admin.books.import');
+
 });
 
 Route::middleware(['auth', 'role:Administrador'])->prefix('admin')->group(function () {
